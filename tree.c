@@ -209,10 +209,11 @@ print_tree2_recursive(TREE* tree, NODE* root, char* path){
 
 	path2 = (char*)malloc(sizeof(char)*500);
 
-	strcat(path, "/");
+	//strcat(path, "/");
 	strcat(path, root->name);
-	if(root->type == 'd')				printf("Path of %s = %s/\n", root->name, path);
-	else if(root->type == 'f')	printf("Path of %s = %s\n", root->name, path);
+	if(root->type == 'd' && strcmp(root->name, "/") != 0)		strcat(path, "/");
+	
+	printf("Path of %s = %s\n", root->name, path);
 
 	tmp = root->firstChild;
 	while(tmp != NULL){
