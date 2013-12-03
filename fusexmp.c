@@ -31,8 +31,7 @@
 
 static int xmp_getattr(const char *path, struct stat *stbuf)
 {
-
-    printf("cd here\n");
+printf("getattr called");
     int res;
 
     res = lstat(path, stbuf);
@@ -41,7 +40,7 @@ static int xmp_getattr(const char *path, struct stat *stbuf)
 
     return 0;
 }
- 
+
 static int xmp_access(const char *path, int mask)
 {
     int res;
@@ -69,7 +68,8 @@ static int xmp_readlink(const char *path, char *buf, size_t size)
 static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
                        off_t offset, struct fuse_file_info *fi)
 {
-printf("ls here\n");
+
+printf("readdir called");
     DIR *dp;
     struct dirent *de;
 
@@ -115,7 +115,8 @@ static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
 
 static int xmp_mkdir(const char *path, mode_t mode)
 {
-printf("mkdir here\n");
+
+printf("mkdir called");
     int res;
 
     res = mkdir(path, mode);
@@ -138,7 +139,8 @@ static int xmp_unlink(const char *path)
 
 static int xmp_rmdir(const char *path)
 {
-printf("rmdir here\n");
+
+printf("rmdir called");
     int res;
 
     res = rmdir(path);
@@ -233,7 +235,7 @@ static int xmp_utimens(const char *path, const struct timespec ts[2])
 
 static int xmp_open(const char *path, struct fuse_file_info *fi)
 {
-printf("open/edit file here\n");
+	printf("xmp_open here\n");
     int res;
 
     res = open(path, fi->flags);
@@ -384,22 +386,6 @@ static struct fuse_operations xmp_oper = {
 
 int main(int argc, char *argv[])
 {
-	int res;
-	struct stat buffer;
-	//DIR *dp;
-	struct fuse_file_info fi;
-
-
-	res = xmp_mkdir("/testing", 493); 
-	res = xmp_getattr("/testing", &buffer); //cd
-	//res = readdir(dp);
-	res = xmp_mkdir("/testing/test", 493);
-	//res = xmp_open("testing/test/mytest.txt",&fi); 
-
-	//res = xmp_readdir("/testing", dp, de, offset, fi);
-
-//xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi)
-	
     umask(0);
     return fuse_main(argc, argv, &xmp_oper, NULL);
 }
