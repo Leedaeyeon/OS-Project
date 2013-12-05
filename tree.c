@@ -14,6 +14,74 @@ typedef struct tree{
 	int depth;
 }TREE;
 
+/* given a string, return the index of the first instance of the '/' char */
+int index_of_first_slash(char* str){
+	char tmp = *str;
+	int i = 0;
+
+	while(tmp != '\0'){
+		if(tmp == '/') return i;
+		i++;
+		tmp = *(str+i);
+
+	}
+	return -1; /* '/' not found in str */
+}
+
+/* given a tree and a path, return the node pointer associated with that path 
+ * return null if the path does not exist
+ */
+NODE* get_node(TREE* tree, char* path){
+	char *dir, *tmp;
+	int pathLength, idOfSlash1;
+	NODE* curNode;
+
+	if(tree == NULL){
+		printf("tree is empty\n");
+		return NULL;
+	}else if(tree->root == NULL){
+		printf("tree is not initialized\n");
+		return NULL;
+	}
+
+	pathLength = strlen(path);
+
+	dir = (char*)malloc(sizeof(char) * pathLength);
+	tmp = (char*)malloc(sizeof(char) * pathLength);
+	strcpy(tmp, path);
+
+	curNode = tree->root;
+
+	if(tmp[0] == '/'){ //take care of leading slash
+		strcpy(dir, "/");
+		strcpy(tmp, tmp+1);
+	}
+
+	while(strcmp(tmp, "") != 0){
+		if(curNode == NULL){
+			printf("ERROR: path DNE");
+			return NULL;
+		}
+		while(strcmp(curNode->name, dir) != 0){
+			curNode = curNode->nextSib;
+			if(curNode == NULL){
+				printf("ERROR: path DNE");
+				return NULL;
+			}
+		}
+		idOfSlash1 = index_of_first_slash(tmp);
+		strncpy(dir, tmp, idOfSlash1);
+		strncpy(tmp, tmp + idOfSlash1 + 1, pathLength - idOfSlash1);
+		curNode = curNode->firstChild;
+	}
+	if(strcmp(curNode->name, dir) == 0){
+		return curNode;
+	}
+	else{
+		printf("ERROR: path DNE");
+		return NULL;
+	}
+}
 
 TREE* create_tree(){
 	
@@ -36,19 +104,10 @@ TREE* create_tree(){
 	return res;
 }
 
-int index_of_first_slash(char* str){
-	char tmp = *str;
-	int i = 0;
-
-	while(tmp != '\0'){
-		if(tmp == '/') return i;
-		i++;
-		tmp = *(str+i);
-
-	}
-	return -1; /* '/' not found in str */
-}
-
+/* given a path and a tree, create a new node, 
+ * and add it to the tree in correct place (rep'd by location)
+ */
+ /*******TODO: ERROR CHECK - IF PATH TO LOCATION DNE -> PRINT ERROR AND RETURN*******/
 void add_node(TREE* tree, char* location){
 	int slashIndex, location_length;
 	char *dir, *tmp;
@@ -85,11 +144,8 @@ void add_node(TREE* tree, char* location){
 	}
 	else{
 		slashIndex = index_of_first_slash(location);
-		if(slashIndex == -1){
-			/*no '/' in location --> not a directory*/
-		}else{
+		if(slashIndex != -1){
 			parent = tree->root;
-			//    while(strlen(tmp) != 0){
 			while(slashIndex != -1 && slashIndex != (strlen(tmp) - 1)){
 			/*divide string in 2 pieces --> dir=before '/'; tmp=after '/'; discard '/'*/
 				strncpy(dir, tmp, slashIndex);
@@ -108,7 +164,7 @@ void add_node(TREE* tree, char* location){
 					while(strcmp(parent->name, dir) != 0){   
 						parent = parent->nextSib;
 						if(parent == NULL){
-							printf("Error parent %s could not be found in tree\n", dir);
+							printf("Error parent %s could not be found in tree. Error on path: %s\n", dir, location);
 							return;
 						}
 					}
@@ -124,6 +180,10 @@ void add_node(TREE* tree, char* location){
 			}else{
 				child = parent->firstChild;
 				while(child->nextSib != NULL){ /*find last child node in the linked list*/
+					if(strcmp(tmp, child->name)){
+						printf("Error: this element already exists\tNode name = %s", tmp);
+						return;
+					}
 					child = child->nextSib;
 				}
 				child->nextSib = new_node;
@@ -135,75 +195,33 @@ void add_node(TREE* tree, char* location){
 
 }
 
-void printLevel(TREE* tree, int level){
-	NODE *node1, *node2;
-	int i;
-	char* path;
+/* given a tree and a path, find the node this path represents 
+ * and print all of its children
+ */
+void printAllChildren(TREE* tree, char* path){
+	NODE* dir;
+	NODE* child;
 
-	path = (char*)malloc(sizeof(char)*1000);
-	
-	if(level < 0 || level > (tree->depth - 1)){
-		printf("Level entered is invalid\n");
+	dir = get_node(tree, path);
+	if(dir == NULL){
+		printf("ERROR: Path does not exist\n");
 		return;
 	}
 
-	/*************************STRCAT DOES NOT WORK THIS WAY**********************************
-	**************************MUST CHANGE TO SYNTAX: strcat(char* dest, char* src)**********/
-
-	if(level == 0){
-		//print root
-	//	printf("root:\n%s\n", tree->root->name);
-	}else if(level == 1){
-		node1 = tree->root->firstChild;
-		while(node1 != NULL){
-			if(node1->type == 'f')			printf("/%s\n", node1->name);
-			else if(node1->type == 'd')	printf("/%s/\n", node1->name);
-			node1 = node1->nextSib;			
-		}
+	child = dir->firstChild;
+	if(child == NULL){
+		printf("%s is empty!\n", dir->name);
 	}else{
-		/* make node1 = first node in (level - 1) */
-		node1 = tree->root;
-		for(i=0; i<(level-1); i++){
-			while(node1->firstChild == NULL){
-				node1 = node1->nextSib;
-				if(node1 == NULL){
-					printf("\nERROR\n");
-					return;
-				}
-			}
-			strcat(path, "/");
-			strcat(path, node1->name);
-			node1 = node1->firstChild;
-		}
-		printf("\n");
-		/* loop through level-1 */
-		while(node1 != NULL){
-		//	printf("sub-directories of %s:\n", node1->name);
-			/* loop through children of node1 */
-			node2 = node1->firstChild;
-			while(node2 != NULL){
-			//print node 2
-		//		printf("%s\n", node2->name);
-				if(node2->type == 'f')			printf("%s%s/%s\n", path, node1->name, node2->name);
-				else if(node2->type == 'd')	printf("%s%s/%s/\n", path, node1->name, node2->name);
-				node2 = node2->nextSib;
-			}
-			node1 = node1->nextSib;
+		while(child != NULL){
+			printf("%s\n", child->name);
+			child = child->nextSib;
 		}
 	}
 }
 
-void print_tree(TREE* tree){
-	int i;
-
-	// for(i=0; i < tree->depth; i++){
-	for(i=0; i < tree->depth; i++){
-	//	printf("--------LEVEL %d--------\n",i);
-		printLevel(tree,i);
-	}
-}
-
-print_tree2_recursive(TREE* tree, NODE* root, char* path){
+/* helper function to print tree recursively */
+/*TODO: consider changing to iterative function*/
+void print_tree_recursive(TREE* tree, NODE* root, char* path){
 	NODE* tmp;
 	char* path2;
 
@@ -218,17 +236,46 @@ print_tree2_recursive(TREE* tree, NODE* root, char* path){
 	tmp = root->firstChild;
 	while(tmp != NULL){
 		strcpy(path2,path);
-		print_tree2_recursive(tree,tmp,path2);
+		print_tree_recursive(tree,tmp,path2);
 		tmp = tmp->nextSib;
 	}
+
+	free(path2);
 }
 
-void print_tree2(TREE* tree){
+/* given a tree: print the path for each node in the tree */
+void print_tree(TREE* tree){
 	char* path;
 
 	path = (char*)malloc(sizeof(char) * 500);
 
-	print_tree2_recursive(tree, tree->root, path);
+	print_tree_recursive(tree, tree->root, path);
+	free(path);
+}
+
+void destroy_tree_recurssive(TREE* tree, NODE* node){
+	//base case: leaf & last sib
+	if(node->firstChild == NULL && node->nextSib == NULL){
+		free(node);
+		return;
+	}else if(node->nextSib == NULL){ //recurssive case 1: last Sib ONLY -> remove node and all children
+		destroy_tree_recurssive(tree, node->firstChild);
+		free(node);
+		return;
+	}else if(node->firstChild == NULL){ //recurssive case 3: leaf ONLY -> remove node and all sibs
+		destroy_tree_recurssive(tree, node->nextSib);
+		free(node);
+		return;
+	}else{ //recurssive case 3: node has sibs and cildren -> remove node & all sibs & all children
+		destroy_tree_recurssive(tree, node->nextSib);
+		destroy_tree_recurssive(tree, node->firstChild);
+		free(node);
+		return;
+	}
+}
+
+void destroy_tree(TREE* tree){
+	destroy_tree_recurssive(tree,tree->root);
 }
 
 void big_tree_test(){
@@ -273,11 +320,9 @@ void big_tree_test(){
 		add_node(tree,"/dir2/dir22/dir221/dir2211/dir22111/dir221111/file2211111");    
 	}
 
-	//  printf("%s\n", tree->root->name);
-	printf("num levels = %d\n", tree->depth);
-
-	//  printf("%s\n", tree->root->firstChild->name);
-	print_tree2(tree);
+	print_tree(tree);
+	printAllChildren(tree, "/dir1/dir11/");
+	destroy_tree(tree);
 }
 
 void little_tree_test(){
@@ -310,11 +355,11 @@ void little_tree_test(){
 
 	//  printf("%s\n", tree->root->firstChild->name);
 	//print_tree(tree);
-	print_tree2(tree);
+	destroy_tree(tree);
 }
 
 int main(){
-	big_tree_test();
+	//big_tree_test();
 	//little_tree_test();
 	
 
