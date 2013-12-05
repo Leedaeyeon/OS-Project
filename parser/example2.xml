@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<root>
+  <dir1>
+    <subdir1>John</subdir1>
+    <subdir2>June</subdir2>
+    <subdir3>example</subdir3>
+  </dir1>
+  <dir2>
+    <subdir4>headline example</subdir4>
+    <subdir5>para example</subdir5>
+  </dir2>
+  <dir3>
+    <subdir6>headline example</subdir6>
+    <subdir7>
+	<subdir8>
+	</subdir8>
+    </subdir7>
+  </dir3>
+</root>
