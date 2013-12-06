@@ -180,8 +180,8 @@ void add_node(TREE* tree, char* location){
 			}else{
 				child = parent->firstChild;
 				while(child->nextSib != NULL){ /*find last child node in the linked list*/
-					if(strcmp(tmp, child->name)){
-						printf("Error: this element already exists\tNode name = %s", tmp);
+					if(strcmp(tmp, child->name) == 0){
+						printf("Error: this element already exists\tNode name = %s\n", child->name);
 						return;
 					}
 					child = child->nextSib;
@@ -278,49 +278,6 @@ void destroy_tree(TREE* tree){
 	destroy_tree_recurssive(tree,tree->root);
 }
 
-void big_tree_test(){
-	//level 0
-	TREE* tree = create_tree();
 
-	if(tree != NULL){
-		//level 1
-		add_node(tree,"/dir1/");
-		add_node(tree,"/dir2/");
-		add_node(tree,"/dir3/");
-		//level 2
-		add_node(tree,"/dir1/dir11/");
-		add_node(tree,"/dir1/file12");
-		add_node(tree,"/dir1/file13");
-		add_node(tree,"/dir2/file21");
-		add_node(tree,"/dir2/dir22/");
-		add_node(tree,"/dir3/file31");
-		//level 3
-		add_node(tree,"/dir1/dir11/dir111/");
-		add_node(tree,"/dir1/dir11/dir112/");
-		add_node(tree,"/dir1/dir11/dir113/");
-		add_node(tree,"/dir2/dir22/dir221/");
-		add_node(tree,"/dir2/dir22/file222");
-		//level 4
-		add_node(tree,"/dir1/dir11/dir111/dir1111/");
-		add_node(tree,"/dir1/dir11/dir111/dir1112/");
-		add_node(tree,"/dir1/dir11/dir111/dir1113/");
-		add_node(tree,"/dir1/dir11/dir112/file1121");
-		add_node(tree,"/dir1/dir11/dir112/dir1122/");
-		add_node(tree,"/dir1/dir11/dir113/file1131");
-		add_node(tree,"/dir2/dir22/dir221/dir2211/");
-		//level 5
-		add_node(tree,"/dir1/dir11/dir111/dir1112/file11121");
-		add_node(tree,"/dir1/dir11/dir111/dir1113/file11131");
-		add_node(tree,"/dir1/dir11/dir111/dir1113/file11132");
-		add_node(tree,"/dir1/dir11/dir112/dir1122/file11221");
-		add_node(tree,"/dir2/dir22/dir221/dir2211/dir22111/");
-		//level 6
-		add_node(tree,"/dir2/dir22/dir221/dir2211/dir22111/dir221111/");        
-		//level7
-		add_node(tree,"/dir2/dir22/dir221/dir2211/dir22111/dir221111/file2211111");    
-	}
 
-	print_tree(tree);
-	printAllChildren(tree, "/dir1/dir11/");
-	destroy_tree(tree);
-}
+

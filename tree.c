@@ -180,8 +180,8 @@ void add_node(TREE* tree, char* location){
 			}else{
 				child = parent->firstChild;
 				while(child->nextSib != NULL){ /*find last child node in the linked list*/
-					if(strcmp(tmp, child->name)){
-						printf("Error: this element already exists\tNode name = %s", tmp);
+					if(strcmp(tmp, child->name) == 0){
+						printf("Error: this element already exists\tNode name = %s\n", child->name);
 						return;
 					}
 					child = child->nextSib;
@@ -361,9 +361,31 @@ void little_tree_test(){
 int main(){
 	//big_tree_test();
 	//little_tree_test();
-	
+	TREE* tree;
+	int length;
 
-	return 0;
+	tree = create_tree();
+
+	static const char filename[] = "path.txt";
+	FILE *file = fopen (filename, "r");
+	if(file != NULL) {
+		char line [128]; /* or other suitable maximum line size */
+		while (fgets(line, sizeof line, file) != NULL){ /* read a line */
+			//printf("%s",line); /* write the line */
+			length = strlen(line);
+			if(line[length-1] == '\n')
+   			line[length-1] = 0;
+			add_node(tree, line);
+		}
+		fclose ( file );
+	}else{
+		perror ( filename ); /* why didn't the file open? */
+	}
+
+   print_tree(tree);
+   //fclose(file);
+	
+	// return 0;
 }
 
 
