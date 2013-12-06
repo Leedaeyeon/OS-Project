@@ -1,0 +1,19 @@
+/dir3/subdir7/subdir8/
+/dir3/subdir7/subdir8/
+	
+/dir3/subdir7/
+/dir3/subdir6/
+/dir3/subdir6/headline example
+/dir3/
+/dir2/subdir5/
+/dir2/subdir5/para example
+/dir2/subdir4/
+/dir2/subdir4/headline example
+/dir2/
+/dir1/subdir3/
+/dir1/subdir3/example
+/dir1/subdir2/
+/dir1/subdir2/June
+/dir1/subdir1/
+/dir1/subdir1/John
+/dir1/
