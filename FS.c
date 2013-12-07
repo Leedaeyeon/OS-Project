@@ -32,6 +32,8 @@ typedef struct tree{
 	int depth;
 }TREE;
 
+TREE* tree;
+
 /* given a string, return the index of the first instance of the '/' char */
 int index_of_first_slash(char* str){
 	char tmp = *str;
@@ -293,9 +295,70 @@ void destroy_tree(TREE* tree){
 	destroy_tree_recurssive(tree,tree->root);
 }
 
+void deparse_recursive(TREE* tree, NODE* root, FILE* out){
+	NODE* tmp;
+	char* str;
+	str = (char*)malloc(sizeof(char)*1000);
+	
+
+	strcat(str, "<");
+	strcat(str, root->name);
+	strcat(str, ">");
+
+	if(root->type == 'f'){
+	//handle file contents
+	}
+	
+	if(root!=tree->root){
+		fprintf(out, "%s\n", str);
+		strcpy(str, "");	
+	}	
+	
+	tmp = root->firstChild;
+	while(tmp!=NULL){
+		deparse_recursive(tree, tmp, out);
+		tmp = tmp->nextSib;
+	}
+	strcat(str, "</");
+	strcat(str, root->name);
+	strcat(str, ">");
+	if(root!=tree->root){
+	fprintf(out, "%s\n", str);
+	strcpy(str, "");
+	}
+	
+	free(str);
+
+}
+
+void deparse(TREE* tree){
+	FILE *file = fopen("parsedexample.xml", "w");
+	fclose(file);
+	fopen("parsedexample.xml", "a");
+	deparse_recursive(tree, tree->root, file);
+	fclose(file);
+}
+
+static int hello_mkdir(const char *path, struct stat *stbuf){
+	printf("hello_mkdir\n");
+	int res = 0;	
+
+	/*memset(stbuf, 0, sizeof(struct stat));
+	if(strcmp(path, "/")==0){
+		//make node here
+		//add_node(tree, path);
+		//res = mkdir(path, stbuf);
+	}
+
+	else{
+	res = -ENOENT;
+	}
+	return res; */ 
+}
 
 static int hello_getattr(const char *path, struct stat *stbuf)
 {
+
   printf("hello_getattr\n");
     int res = 0;
 
@@ -365,6 +428,7 @@ static int hello_read(const char *path, char *buf, size_t size, off_t offset,
 }
 
 static struct fuse_operations hello_oper = {
+    .mkdir	= hello_mkdir,
     .getattr	= hello_getattr,
     .readdir	= hello_readdir,
     .open	= hello_open,
@@ -374,8 +438,6 @@ static struct fuse_operations hello_oper = {
 int main(int argc, char *argv[])
 {
   printf("main\n");
-
-TREE* tree;
 	int length;
 
 	tree = create_tree();
@@ -383,20 +445,21 @@ TREE* tree;
 	static const char filename[] = "path.txt";
 	FILE *file = fopen (filename, "r");
 	if(file != NULL) {
-		char line [128]; /* or other suitable maximum line size */
-		while (fgets(line, sizeof line, file) != NULL){ /* read a line */
-			//printf("%s",line); /* write the line */
+		char line [128]; 
+		while (fgets(line, sizeof line, file) != NULL){ 
+			//printf("%s",line); 
 			length = strlen(line);
 			if(line[length-1] == '\n')
    				line[length-1] = 0;
+			//change to mkdir and then add node in mkdir 
 			add_node(tree, line);
 		}
 		fclose (file);
 	}else{
-		perror (filename); /* why didn't the file open? */
+		perror (filename); 
 	}
 
-	   print_tree(tree);
+	   deparse(tree);
 
 
     return fuse_main(argc, argv, &hello_oper, NULL);
