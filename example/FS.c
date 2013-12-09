@@ -19,8 +19,10 @@
 
 static const char *hello_str = "Hello World!\n";
 static const char *hello_path = "/hello";
-static const char *test_path = "/test123";
-static const char *test_sd_path = "/subdir";
+static char *parent_path;
+static char *child_path;
+static char *file_path = "/testfile";
+static char *file_str = "This is a test file!\n";
 
 typedef struct node{
 	char* name;
@@ -352,6 +354,33 @@ void deparse(TREE* tree){
 	fclose(file);
 }
 
+void set_paths(char* path){
+	int length = strlen(path), lastSlashIndex;
+	char* str;
+	
+	parent_path = (char*)malloc(sizeof(char) *length);
+	child_path = (char*)malloc(sizeof(char) *length);
+
+	str = (char*)malloc(sizeof(char)*length);
+	strcpy(str, path);
+	
+	if(str[length-1] == '/'){
+		str[length-1]= '\0';	
+	}
+	length = strlen(str);
+	
+	lastSlashIndex = index_of_last_slash(str);
+	strncpy(child_path, str+lastSlashIndex, length- lastSlashIndex);
+	child_path[length-lastSlashIndex] = '\0';
+	strncpy(parent_path, str, lastSlashIndex);
+	parent_path[lastSlashIndex] = '\0';
+
+	lastSlashIndex = index_of_last_slash(parent_path);
+	length = strlen(parent_path);
+	strncpy(parent_path, parent_path + lastSlashIndex, length-lastSlashIndex);
+	parent_path[length - lastSlashIndex] = '\0';
+}
+
 static int hello_mkdir(const char *path, struct stat *stbuf){
 	printf("hello_mkdir\n");
 	int res;
@@ -381,18 +410,22 @@ static int hello_getattr(const char *path, struct stat *stbuf)
         stbuf->st_mode = S_IFDIR | 0755;
         stbuf->st_nlink = 2;
     }
-    else if(strcmp(path, hello_path) == 0) {
-        stbuf->st_mode = S_IFREG | 0444;
-        stbuf->st_nlink = 1;
-        stbuf->st_size = strlen(hello_str);
-    }
-    else{
+    else if(strcmp(path, parent_path)==0){			//need to change this to be parent_path
 	stbuf->st_mode = S_IFDIR | 0755;
         stbuf->st_nlink = 1;
     }
-    /*else{
+    else if(strcmp(path, child_path)==0){
+	stbuf->st_mode = S_IFDIR | 0755;
+        stbuf->st_nlink = 1;
+    }/*
+    else if(strcmp(path, file_path)==0){
+	stbuf->st_mode = S_IFREG | 0444;
+        stbuf->st_nlink = 1;
+        stbuf->st_size = strlen(file_str);
+    }*/
+    else{
         res = -ENOENT;
-	}*/
+	}
 
     return res;
 }
@@ -401,41 +434,36 @@ static int hello_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
                          off_t offset, struct fuse_file_info *fi)
 {
 
-/*NODE* fpath;
-TREE* ftree;
-ftree = create_tree();
-
-char * testchar;
-strcpy(testchar, "hello world");
-
-//this is for testing
-
-//add_node(tree, testchar, "");
-print_tree(ftree);
-
-//fpath =r tree->root; */
-
-
   printf("hello_readdir\n");
     (void) offset;
     (void) fi;
 
-	if(strcmp(path, "/") != 0){	//as long as they are not children of root add here
-	        //return -ENOENT;
-		filler(buf, ".", NULL, 0);
-	   	filler(buf, "..", NULL, 0);
-		if(strcmp(path, test_path)==0){ 	//parent path of what is being added (test_sd_path)		
-			//need to remove slash at end of test_sd_path
-			filler(buf, test_sd_path + 1, NULL, 0);		//add child
-		}
+static const char* test_path = "/test123";
+
+	if(strcmp(path, "/") == 0){	//as long as they are not children of root add here
+	    filler(buf, ".", NULL, 0);
+	    filler(buf, "..", NULL, 0);
+	    filler(buf, test_path +1, NULL, 0);
+	    filler(buf, parent_path + 1, NULL, 0); 	//add root's children in this part
+	    filler(buf, child_path + 1, NULL, 0);    
 	}     
 
 	else{
-	    filler(buf, ".", NULL, 0);
-	    filler(buf, "..", NULL, 0);
-	    filler(buf, hello_path + 1, NULL, 0);
-	    filler(buf, test_path + 1, NULL, 0); 	//add root's children in this part
-	    filler(buf, test_sd_path + 1, NULL, 0);
+		 //return -ENOENT;
+		filler(buf, ".", NULL, 0);
+	   	filler(buf, "..", NULL, 0);
+
+		//loop through the tree to set parent_path and child_path
+
+		printf("path: %s\n", path);	
+		printf("parent path: %s\n", parent_path);	
+		if(strcmp(path, parent_path)==0){ 
+			filler(buf, ".", NULL, 0);
+	   		filler(buf, "..", NULL, 0);
+			printf("path: %s\n", path);	
+			filler(buf, child_path + 1, NULL, 0);		//add child
+			filler(buf, file_path + 1, NULL, 0);	
+	}
 	}
 
     return 0;
@@ -514,8 +542,6 @@ int main(int argc, char *argv[]){
 			}
 			if(strcmp(line, "") != 0 && strcmp(line, "<<>>") != 0){
 				add_node(tree, line, fileContents);
-				test_path = line;
-				// test_sd_path 
 			}
 		}
 		fclose (file);
@@ -524,6 +550,10 @@ int main(int argc, char *argv[]){
 	}
 		print_tree(tree);
 		deparse(tree);
-
+		
+		set_paths("/dir1/dir2/dir3/");
+		printf("parent path: %s\n", parent_path);
+		printf("child path: %s\n", child_path);
+	
     return fuse_main(argc, argv, &hello_oper, NULL);
 }
