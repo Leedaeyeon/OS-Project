@@ -25,6 +25,7 @@ typedef struct node{
 	struct node *nextSib;
 	struct node *firstChild;
 	char type; /* 'd' == directory; 'f' == file */
+	char* fileContents;
 }NODE;
 
 typedef struct tree{
@@ -169,7 +170,7 @@ NODE* get_parent(TREE* tree, char* path){
  * and add it to the tree in correct place (rep'd by location)
  */
 
-void add_node(TREE* tree, char* path){
+void add_node(TREE* tree, char* path, char* fileContents){
 	NODE *parent, *new_node , *child;
 	int lastSlashIndex, pathLength = strlen(path);
 	char str[pathLength+1];
@@ -182,6 +183,11 @@ void add_node(TREE* tree, char* path){
 	if(str[pathLength-1] == '/'){
 		new_node->type = 'd';
 		str[pathLength-1] = '\0';
+	}else{
+		new_node->type = 'f';
+		new_node->fileContents = (char*)malloc(sizeof(char) * strlen(fileContents));
+		fileContents[0] = '\0';
+		strcpy(new_node->fileContents, fileContents);
 	}
 		//get name of node
 	lastSlashIndex = index_of_last_slash(str);
@@ -251,6 +257,9 @@ void print_tree_recursive(TREE* tree, NODE* root, char* path){
 	if(root->type == 'd' && strcmp(root->name, "/") != 0)		strcat(path, "/");
 	
 	printf("Path of %s = %s\n", root->name, path);
+	if(root->type == 'f'){
+		printf("contents: %s\n", root->fileContents);
+	}
 
 	tmp = root->firstChild;
 	while(tmp != NULL){
@@ -307,15 +316,11 @@ void deparse_recursive(TREE* tree, NODE* root, FILE* out){
 	strcat(str, root->name);
 	strcat(str, ">");
 
-	if(root->type == 'f'){
-		//handle file contents
-	}
-	
 	if(root!=tree->root){
 		fprintf(out, "%s\n", str);
 		strcpy(str, "");	
 	}	
-	
+
 	tmp = root->firstChild;
 	while(tmp!=NULL){
 		deparse_recursive(tree, tmp, out);
@@ -325,6 +330,10 @@ void deparse_recursive(TREE* tree, NODE* root, FILE* out){
 	strcat(str, root->name);
 	strcat(str, ">");
 	if(root!=tree->root){
+		if(root->type == 'f'){
+			//handle file contents
+			fprintf(out, "%s", root->fileContents);
+		}
 		fprintf(out, "%s\n", str);
 		strcpy(str, "");
 	}
@@ -440,29 +449,44 @@ static struct fuse_operations hello_oper = {
 int main(int argc, char *argv[]){
 	printf("main\n");
 	int length;
-
+	char *fileContents;
+	fileContents = (char*)malloc(sizeof(char) * 10000);
+	
 	tree = create_tree();
 	
 	static const char filename[] = "path.txt";
 	FILE *file = fopen (filename, "r");
 	if(file != NULL) {
-		char line [128]; 
+		char line [128], line2[128]; 
 		while (fgets(line, sizeof line, file) != NULL){ 
+			fileContents[0] = '\0';
 			//printf("%s",line); 
 			length = strlen(line);
-			if(line[length-1] == '\n')
-   				line[length-1] = '\0';
-   			if(line[length-2] == '\r')
-   				line[length-2] = '\0';
+			if(line[length-1] == '\n')		line[length-1] = '\0';
+   			if(line[length-2] == '\r')		line[length-2] = '\0';
 			//change to mkdir and then add node in mkdir 
-			if(strcmp(line, ""))
-				add_node(tree, line);
+			length = strlen(line);
+			if(line[length-1] == ':'){
+				line[length-1] = '\0';
+				while(fgets(line2, sizeof line2, file) != NULL){
+					length = strlen(line2);
+					if(line2[length-1] == '\n')		line2[length-1] = '\0';
+   					if(line2[length-2] == '\r')		line2[length-2] = '\0';
+					if(strcmp(line2, "<<>>") == 0)	break;
+					strcat(fileContents, line2);
+					strcat(fileContents, "\n");
+				}
+			}
+			if(strcmp(line, "") != 0 && strcmp(line, "<<>>") != 0){
+				add_node(tree, line, fileContents);
+			}
 		}
 		fclose (file);
 	}else{
 		perror (filename); 
 	}
 		print_tree(tree);
+		deparse(tree);
 
     return fuse_main(argc, argv, &hello_oper, NULL);
 }
