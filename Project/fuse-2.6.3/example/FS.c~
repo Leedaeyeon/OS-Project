@@ -484,6 +484,16 @@ tmp_curnode = (char*)malloc(sizeof(char)*200);
     	return -ENOENT;
     }
 
+//This below function allows for the mkdir function to be called but does not properly create files with the right permissions
+if((curNode->type)=='f'){
+	stbuf->st_mode = S_IFREG | 0444;
+    	stbuf->st_nlink = 2;   
+        stbuf->st_size = strlen(file_str);
+	strcpy(file_path, path);
+	strcpy(file_str, curNode->fileContents);
+	printf("file path: %s\n", file_path);
+	printf("file contents: %s\n", file_str);	
+     }
 	stbuf->st_mode = S_IFDIR | 0755;
 	stbuf->st_nlink = 2;
 	tmp = curNode->firstChild;
@@ -495,6 +505,24 @@ tmp_curnode = (char*)malloc(sizeof(char)*200);
 		tmp = tmp->nextSib;
 	}
 
+//This allows for read access of files but not for mkdir to be called, it makes them as files
+/*if((curNode->type)=='f'){
+	strcpy(file_path, path);
+	strcpy(file_str, curNode->fileContents);
+	printf("file path: %s\n", file_path);
+	printf("file contents: %s\n", file_str);	
+     }
+	stbuf->st_mode = S_IFREG | 0444;
+    	stbuf->st_nlink = 2;   
+        stbuf->st_size = strlen(file_str);
+	tmp = curNode->firstChild;
+	while(tmp != NULL){
+		strcpy(childPath, "/");
+		strcat(childPath, tmp->name);
+		stbuf->st_mode = S_IFDIR | 0755;
+       		stbuf->st_nlink = 2;
+		tmp = tmp->nextSib;
+	}*/
 
 
  

@@ -1,0 +1,48 @@
+Rebecca Friedman, rsf92@gwmail.gwu.edu
+
+Rian Shambaugh, rolivia@gwmail.gwu.edu
+
+ 
+Design Decisions:
+
+ 
+
+o Tree data structure to represent the XML file
+                + create_tree – allocates memory for the tree and creates the root of the tree (which is ‘/’)
+                + add_node – allocates memory for a node and places it in the correct location based on the path
+                + index_of_first_slash – helper function to return the index of the first ‘/’ character in a given string
+                + index_of_last_slash – helper function to return the index of the last ‘/’ character in a given string
+                + get_node – helper function: given a path and a tree, returns the node represented by the path
+                + get_parent – helper function: given a path and a tree, returns the parent of the node represented by the path
+                + print_tree – used for debugging: traverses tree and prints the path of each node to the console
+                + print_tree_recursive – helper function for print_tree, traversal was implemented recursively
+                + destroy_tree – function to free all memory allocated for the tree
+                + destroy_tree_recursive – helper function for print_tree, implemented recursively
+                + deparse – function to deparse the tree back to xml
+o FUSE functions
+                + readdir – iterates through all of the children of the current node and calls the filler function for each one
+                + getattr – iterates through all of the children of the current node and sets the permissions for each one
+                + read – reads the contents of a file
+                + open – opens a file
+                + mkdir – creates new node in tree
+                + rmdir – removes a node from the tree
+o XML parser
+                + Libxml2 parser but needed modifications
+
+ 
+
+ 
+
+Difficulties and Challenges
+
+    * XML files
+          o Spent a lot of time figuring out how to parse the XML file and represent it in a tree
+          o Meant having to dynamically make too many directories using FUSE
+    * Overcomplicating
+          o We made it way more complicated than it needed to be
+          o For example: we originally thought that we would need to traverse the entire tree for readdir and getattr, but we did not.
+    * Makefile
+          o Difficulty using header files and combining xml parser and FUSE library
+    * Segmentation Faults and memory leaks
+    * Time: Not enough
+
