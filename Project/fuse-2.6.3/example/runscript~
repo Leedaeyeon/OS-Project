@@ -1,0 +1,14 @@
+#!/bin/bash
+
+cd '/../../libxml2-2.7.2/example' / && make clean && cd '/../../fuse-2.6.3/example' 
+
+cd '/../../libxml2-2.7.2/example' / && make && cd '/../../fuse-2.6.3/example'
+
+cd '/../../fuse-2.6.3/example'  / && make clean && cd '/../../fuse-2.6.3/example' 
+
+cd '/../../fuse-2.6.3/example'  / && make && cd '/../../fuse-2.6.3/example'  
+
+cd '/../../libxml2-2.7.2/example' / && './exampleparse' example2.xml && cd '/../../fuse-2.6.3/example' 
+
+
+

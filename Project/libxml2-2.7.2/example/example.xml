@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<root>
+<dir1>
+<file1>Joe</file1>
+<file2>June</file2>
+</dir1>
+<dir2>
+<subdir>
+<file4>CentOS</file4>
+</subdir>
+<file5>more examples</file5>
+</dir2>
+<dir3>
+<subdir7>
+<subdir8>
+<file8>hi</file8>
+</subdir8>
+</subdir7>
+</dir3>
+<dir4> </dir4>
+</root>

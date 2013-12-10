@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<root>
+  <dir1>
+    <file1>Joe</file1>
+    <file2>June</file2>
+    <file3>hi</file3>
+  </dir1>
+  <dir2>
+	<subdir>
+	    <file5>CentOS is developed by a small but growing team of core developers.  In turn the core developers are supported by an active user community including system administrators, network administrators, enterprise users, managers, core Linux contributors and Linux enthusiasts from around the world.</file5>
+	</subdir>
+	<file6>This is another test file </file6>
+  </dir2>
+  <dir3>
+    <subdir7>
+	<subdir8>
+		<file8>hello world</file8>
+	</subdir8>
+    </subdir7>
+  </dir3>
+  <dir4> </dir4>
+</root>
