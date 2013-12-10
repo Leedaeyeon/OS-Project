@@ -19,8 +19,11 @@
 
 static const char *hello_str = "Hello World!\n";
 static const char *hello_path = "/hello";
-static const char *test_path = "/test123";
-static const char *test_sd_path = "/subdir";
+// static char *parent_path;
+// static char *child_path;
+// static const char* test_path = "/test123";
+static char *file_path = "/testfile";
+static char *file_str = "This is a test file!\n";
 
 typedef struct node{
 	char* name;
@@ -253,6 +256,7 @@ void print_tree_recursive(TREE* tree, NODE* root, char* path){
 	char* path2;
 
 	path2 = (char*)malloc(sizeof(char)*500);
+	path2[0] = '\0';
 
 	//strcat(path, "/");
 	strcat(path, root->name);
@@ -278,9 +282,230 @@ void print_tree(TREE* tree){
 	char* path;
 
 	path = (char*)malloc(sizeof(char) * 500);
+	path[0] = '\0';
 
 	print_tree_recursive(tree, tree->root, path);
 	free(path);
+}
+
+void getattr_loop(const char *path, struct stat *stbuf){
+	NODE* curNode = tree->root->firstChild;
+	NODE *tmp, *parentNode;
+	NODE* stack[500];
+	char *str;
+	int stackPtr = -1, length, lastSlashIndex;	//-1 indicates stack is empty; stack ptr points to top element
+	char *tmp_parent_path, *tmp_child_path;
+	tmp_parent_path = (char*)malloc(sizeof(char)*500);
+	tmp_child_path = (char*)malloc(sizeof(char)*500);
+
+	strcpy(tmp_parent_path, "");
+
+	printf("path in getattr loop: %s\n",path);
+	printf("tmp_parent_path in getattr loop: %s\n", tmp_parent_path);
+
+	if(tree == NULL || tree->root == NULL){
+		printf("tree is not initialized");
+		return;
+	}
+
+	if(tree->root->firstChild == NULL){
+		printf("tree is empty");
+		return;
+	}
+
+	// while(curNode != NULL){
+		//"visit" node
+		// strcpy(tmp_parent_path, "/");
+		// strcat(tmp_parent_path, curNode->name);
+		// parentNode = get_parent(tree, path);
+		strcat(path, "/");
+		printf("path before get_node: %s\n", path);
+		parentNode = get_node(tree, path);
+		printf("parentNode = %s\n", parentNode->name);
+		//printf("parentNode at getattr loop:%s\n", parentNode->name);
+		if(parentNode == NULL){
+			printf("ERROR: PARENT IS NULL\n");
+			return;
+		}
+
+		//tmp_parent_path = curNode->name;
+			
+
+		//get child part of path
+		// str = (char*)malloc(sizeof(char)*length);
+		// strcpy(str, path);
+	
+		// if(str[length-1] == '/'){
+		// 	str[length-1]= '\0';	
+		// }
+		// length = strlen(str);
+	
+		// lastSlashIndex = index_of_last_slash(str);
+		// strncpy(path, str+lastSlashIndex, length- lastSlashIndex);
+		// path[length-lastSlashIndex] = '\0';
+
+		//strcpy(tmp_parent_path, "/");
+		//strcat(tmp_parent_path,parentNode->name);
+
+		tmp = parentNode;//->firstChild;
+		while(tmp != NULL){
+			strcpy(tmp_parent_path, "/");
+			// strcat(tmp_parent_path, parentNode->name);
+			// strcat(tmp_parent_path, "/");
+			strcat(tmp_parent_path, tmp->name);
+			strcat(tmp_parent_path, "/");
+			printf("parentNode at getattr loop:%s\n", parentNode->name);
+			printf("path before strcmp:%s\n", path);
+			printf("tmp_parent_path before strcmp: %s\n", tmp_parent_path);
+			if(strcmp(path, tmp_parent_path) == 0){
+				stbuf->st_mode = S_IFDIR | 0755;
+				stbuf->st_nlink = 2;
+				// tmp = curNode;
+				// filler(buf, ".", NULL, 0);
+				// filler(buf, "..", NULL, 0);
+				// printf("path here is: %s\n", path);
+				// strcpy(tmp_child_path, "/");
+				// strcat(tmp_child_path, tmp->name);
+				// printf("tmp_child_path: %s\n", tmp_child_path);
+				// while(tmp != NULL){
+				// 	strcpy(tmp_child_path, "/");
+				// 	strcat(tmp_child_path, tmp->name);
+				// 	filler(buf, tmp_child_path + 1, NULL, 0);
+				// 	tmp = tmp->nextSib;
+				// }
+			}
+
+			tmp = tmp->nextSib;
+		//printf("new tmp_parent_path: %s\n", tmp_parent_path);	
+		}
+
+
+
+	// 	if(curNode->firstChild == NULL && curNode->nextSib == NULL){
+	// 		if(stackPtr >= 0){
+	// 			//pop
+	// 			curNode = stack[stackPtr];
+	// 			stackPtr--;
+	// 			//visit children
+	// 			curNode = curNode->firstChild;
+	// 		}else break;
+	// 	}else if(curNode->firstChild == NULL){
+	// 		//visit sibs
+	// 		curNode = curNode->nextSib;
+	// 	}else if(curNode->nextSib == NULL){
+	// 		//visit children
+	// 		curNode = curNode->firstChild;
+	// 	}else{
+	// 		//push
+	// 		stackPtr++;
+	// 		stack[stackPtr] = curNode;
+	// 		//visit sibs
+	// 		curNode = curNode->nextSib;
+	// 	}
+	// }
+		printf("path at end of getattr before readdir:%s\n", path);
+}
+
+void filler_loop(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi){
+	printf("path in filler_loop: %s\n", path);
+	NODE* curNode;
+	NODE* tmp;
+	NODE* stack[500];
+	int stackPtr = -1;	//-1 indicates stack is empty; stack ptr points to top element
+	char *tmp_parent_path, *tmp_child_path, *cur_path;
+	tmp_parent_path = (char*)malloc(sizeof(char)*500);
+	tmp_child_path = (char*)malloc(sizeof(char)*500);
+	cur_path = (char*)malloc(sizeof(char)*500);
+
+	
+	if(strcmp(path, "/")!=0){
+		strcpy(cur_path,path);
+		strcat(cur_path, "/");
+		printf("cur_path = %s\n", cur_path);
+		curNode = get_node(tree, cur_path);
+		printf("curnode after getparent: %s\n", curNode->name);
+		if(curNode == NULL){
+			printf("curnode is null\n");
+			return;
+		}
+	}
+	else{
+		curNode = tree->root->firstChild;
+	}
+
+
+	if(tree == NULL || tree->root == NULL){
+		printf("tree is not initialized");
+		return;
+	}
+
+	if(tree->root->firstChild == NULL){
+		printf("tree is empty");
+		return;
+	}
+
+	// while(curNode != NULL){
+		//"visit" node
+		if(strcmp(curNode->name,"/")!=0){
+		strcpy(tmp_parent_path, "/");
+		}
+		strcat(tmp_parent_path, curNode->name);
+		strcpy(path, tmp_parent_path);
+		
+		if(curNode==NULL){
+			printf("this is the end\n");
+		}
+
+		//tmp_parent_path = curNode->name;
+		printf("path before strcmp is: %s\n", path);
+		printf("tmp_parent_path here is: %s\n", tmp_parent_path);
+		if(strcmp(path, tmp_parent_path) == 0){
+			tmp = curNode;
+			// filler(buf, ".", NULL, 0);
+			// filler(buf, "..", NULL, 0);
+			printf("path after strcmp is: %s\n", path);
+			if(strcmp(curNode->name,"/")!=0){
+				strcpy(tmp_child_path, "/");
+			}
+			strcat(tmp_child_path, curNode->name);
+			printf("current node: %s\n", curNode->name);
+			printf("tmp_child_path: %s\n", tmp_child_path);
+			while(tmp != NULL){
+				if(tmp==NULL){
+					printf("TMP: this is the end\n");
+				}
+				strcpy(tmp_child_path, "/");
+				strcat(tmp_child_path, tmp->name);
+				printf("tmp_child_path before filler function: %s\n", tmp_child_path);
+				filler(buf, tmp_child_path + 1, NULL, 0);
+				tmp = tmp->nextSib;
+			}
+		}
+
+
+	// 	if(curNode->firstChild == NULL && curNode->nextSib == NULL){
+	// 		if(stackPtr >= 0){
+	// 			//pop
+	// 			curNode = stack[stackPtr];
+	// 			stackPtr--;
+	// 			//visit children
+	// 			curNode = curNode->firstChild;
+	// 		}else break;
+	// 	}else if(curNode->firstChild == NULL){
+	// 		//visit sibs
+	// 		curNode = curNode->nextSib;
+	// 	}else if(curNode->nextSib == NULL){
+	// 		//visit children
+	// 		curNode = curNode->firstChild;
+	// 	}else{
+	// 		//push
+	// 		stackPtr++;
+	// 		stack[stackPtr] = curNode;
+	// 		//visit sibs
+	// 		curNode = curNode->nextSib;
+	// 	}
+	// }
+		printf("path at end of filler_loop: %s\n", path);
 }
 
 void destroy_tree_recurssive(TREE* tree, NODE* node){
@@ -352,6 +577,33 @@ void deparse(TREE* tree){
 	fclose(file);
 }
 
+// void set_paths(char* path){
+// 	int length = strlen(path), lastSlashIndex;
+// 	char* str;
+	
+// 	// parent_path = (char*)malloc(sizeof(char) *length);
+// 	// child_path = (char*)malloc(sizeof(char) *length);
+
+// 	str = (char*)malloc(sizeof(char)*length);
+// 	strcpy(str, path);
+	
+// 	if(str[length-1] == '/'){
+// 		str[length-1]= '\0';	
+// 	}
+// 	length = strlen(str);
+	
+// 	lastSlashIndex = index_of_last_slash(str);
+// 	strncpy(child_path, str+lastSlashIndex, length- lastSlashIndex);
+// 	child_path[length-lastSlashIndex] = '\0';
+// 	strncpy(parent_path, str, lastSlashIndex);
+// 	// parent_path[lastSlashIndex] = '\0';
+
+// 	lastSlashIndex = index_of_last_slash(parent_path);
+// 	length = strlen(parent_path);
+// 	strncpy(parent_path, parent_path + lastSlashIndex, length-lastSlashIndex);
+// 	parent_path[length - lastSlashIndex] = '\0';
+// }
+
 static int hello_mkdir(const char *path, struct stat *stbuf){
 	printf("hello_mkdir\n");
 	int res;
@@ -374,69 +626,187 @@ static int hello_getattr(const char *path, struct stat *stbuf)
 {
 
   printf("hello_getattr\n");
+  printf("path getattr:%s\n", path);
     int res = 0;
 
     memset(stbuf, 0, sizeof(struct stat));
-    if(strcmp(path, "/") == 0) {
-        stbuf->st_mode = S_IFDIR | 0755;
-        stbuf->st_nlink = 2;
-    }
-    else if(strcmp(path, hello_path) == 0) {
-        stbuf->st_mode = S_IFREG | 0444;
-        stbuf->st_nlink = 1;
-        stbuf->st_size = strlen(hello_str);
-    }
-    else{
-	stbuf->st_mode = S_IFDIR | 0755;
-        stbuf->st_nlink = 1;
-    }
-    /*else{
-        res = -ENOENT;
-	}*/
 
+	NODE *curNode, *tmp;
+	char *childPath, *tmpPath;
+    		
+    tmpPath = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    childPath = (char*)malloc(500);
+    childPath[0] = '\0';
+    strcpy(tmpPath, path);
+    printf("tmpPath = %s\n", tmpPath);
+    if(tmpPath[strlen(tmpPath) - 1] != '/'){
+    	printf("seg fault here?\n");
+    	strcat(tmpPath, "/");
+    	printf("seg fault here?\n");
+    }
+    curNode = get_node(tree, tmpPath);
+
+    if(curNode == NULL){
+    	return -ENOENT;
+    }
+
+ //    filler(buf, ".", NULL, 0);
+	// filler(buf, "..", NULL, 0); 
+	stbuf->st_mode = S_IFDIR | 0755;
+    stbuf->st_nlink = 2;   
+	tmp = curNode->firstChild;
+	while(tmp != NULL){
+		strcpy(childPath, "/");
+		strcat(childPath, tmp->name);
+		stbuf->st_mode = S_IFDIR | 0755;
+        stbuf->st_nlink = 2;
+		tmp = tmp->nextSib;
+	}
+
+
+ //    if(get_node(tree, path) == NULL){
+	// 	res = -ENOENT;		
+	// }else{
+
+  //   	if(strcmp(path, "/") == 0) {
+  //       	stbuf->st_mode = S_IFDIR | 0755;
+  //       	stbuf->st_nlink = 2;
+  //   	}
+  //   	else if(strcmp(path, parent_path)==0){			//need to change this to be parent_path
+		// stbuf->st_mode = S_IFDIR | 0755;
+  //       	stbuf->st_nlink = 1;
+  //   	}
+  //   	else if(strcmp(path, child_path)==0){
+		// stbuf->st_mode = S_IFDIR | 0755;
+  //       stbuf->st_nlink = 1;
+  //   	}else if(strcmp(path, test_path)==0){
+		// 	stbuf->st_mode = S_IFDIR | 0755;
+  //       	stbuf->st_nlink = 1;
+  //   	}
+  //   	else if(strcmp(path, file_path)==0){
+		// 	stbuf->st_mode = S_IFREG | 0444;
+  //       	stbuf->st_nlink = 1;
+  //       	stbuf->st_size = strlen(file_str);
+  //   	}
+  //   	else{
+  //   		getattr_loop(path, stbuf);
+		// }
+	// }
     return res;
 }
+
+// void print_filler(NODE* root, const char *path, void *buf, fuse_fill_dir_t filler,
+//                          off_t offset, struct fuse_file_info *fi)
+// {
+
+// 	NODE* tmp;
+// 	char* path2;
+
+// 	path2 = (char*)malloc(sizeof(char)*500);
+
+// 	//strcat(path, "/");
+// 	//strcat(path, root->name);
+// 	//if(root->type == 'd' && strcmp(root->name, "/") != 0)		strcat(path, "/");
+	
+// 	//printf("Path of %s = %s\n", root->name, path);
+// 	// if(root->type == 'f'){
+// 	// 	//printf("contents: %s\n", root->fileContents);
+// 	// 	set_paths(path);
+// 	// 	filler(buf, , NULL, 0);
+// 	// }
+// 	set_paths(path);
+// 	printf("THIS IS THE PRINT_FILLER FUNCTION\n");
+// 	// printf("parent_path = %s, child_path = %s\n", parent_path, child_path);
+// 	if(strcmp(path, parent_path)==0){ 
+// 		filler(buf, ".", NULL, 0);
+//    		filler(buf, "..", NULL, 0);
+// 		filler(buf, child_path + 1, NULL, 0);		//add child
+// 	//	filler(buf, file_path + 1, NULL, 0);	
+// 	}
+
+// 	// tmp = root->firstChild;
+// 	// while(tmp != NULL){
+// 	// 	strcpy(path2,path);
+// 	// 	//print_tree_recursive(tree,tmp,path2);
+// 	// 	//print_filler(tmp, path2, buf, filler, offset, fi);
+// 	// 	tmp = tmp->nextSib;
+// 	// }
+
+// 	// free(path2);
+// }
 
 static int hello_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
                          off_t offset, struct fuse_file_info *fi)
 {
 
-/*NODE* fpath;
-TREE* ftree;
-ftree = create_tree();
-
-char * testchar;
-strcpy(testchar, "hello world");
-
-//this is for testing
-
-//add_node(tree, testchar, "");
-print_tree(ftree);
-
-//fpath =r tree->root; */
-
+	NODE *curNode, *tmp;
+	char *childPath, *tmpPath;
 
   printf("hello_readdir\n");
+  printf("path at beginning of readdir: %s\n", path);
     (void) offset;
     (void) fi;
 
-	if(strcmp(path, "/") != 0){	//as long as they are not children of root add here
-	        //return -ENOENT;
-		filler(buf, ".", NULL, 0);
-	   	filler(buf, "..", NULL, 0);
-		if(strcmp(path, test_path)==0){ 	//parent path of what is being added (test_sd_path)		
-			//need to remove slash at end of test_sd_path
-			filler(buf, test_sd_path + 1, NULL, 0);		//add child
-		}
-	}     
+    		
+    tmpPath = (char*)malloc(sizeof(char) * (strlen(path) + 1));
+    childPath = (char*)malloc(500);
+    childPath[0] = '\0';
+    strcpy(tmpPath, path);
+    printf("tmpPath = %s\n", tmpPath);
+    if(tmpPath[strlen(tmpPath) - 1] != '/'){
+    	printf("seg fault here?\n");
+    	strcat(tmpPath, "/");
+    	printf("seg fault here?\n");
+    }
+    curNode = get_node(tree, tmpPath);
 
-	else{
-	    filler(buf, ".", NULL, 0);
-	    filler(buf, "..", NULL, 0);
-	    filler(buf, hello_path + 1, NULL, 0);
-	    filler(buf, test_path + 1, NULL, 0); 	//add root's children in this part
-	    filler(buf, test_sd_path + 1, NULL, 0);
+    if(curNode == NULL){
+    	return -ENOENT;
+    }
+
+    filler(buf, ".", NULL, 0);
+	filler(buf, "..", NULL, 0);    
+	tmp = curNode->firstChild;
+	while(tmp != NULL){
+		strcpy(childPath, "/");
+		strcat(childPath, tmp->name);
+		filler(buf, tmp->name, NULL, 0);
+		tmp = tmp->nextSib;
 	}
+
+// static const char* test_path = "/test123";
+
+
+
+// 	if(strcmp(path, "/") == 0){	//as long as they are not children of root add here
+// 	    filler(buf, ".", NULL, 0);
+// 	    filler(buf, "..", NULL, 0);
+// 	    // filler(buf, test_path +1, NULL, 0);
+// 	   //filler(buf, parent_path + 1, NULL, 0); 	//add root's children in this part  
+// //	    print_filler(tree->root, path, buf, filler, offset, fi);
+// 	    filler_loop(path, buf, filler, offset,fi);
+// 	}     
+
+// 	else{
+// 		 //return -ENOENT;
+// 		filler(buf, ".", NULL, 0);
+// 	   	filler(buf, "..", NULL, 0);
+
+// 		//loop through the tree to set parent_path and child_path
+	
+// 		// print_filler(tree->root, "/rian/rebecca/", buf, filler, offset, fi); 
+// 		// if(strcmp(path, parent_path)==0){ 
+// 		// 	filler(buf, ".", NULL, 0);
+// 	 //   		filler(buf, "..", NULL, 0);
+// 		// 	printf("path: %s\n", path);	
+// 		// 	filler(buf, child_path + 1, NULL, 0);		//add child
+// 		// 	filler(buf, file_path + 1, NULL, 0);	
+// 		// }
+// 		filler_loop(path, buf, filler, offset, fi);
+// 	}
+
+
+// 		printf("path at end of readdir: %s\n", path);	
 
     return 0;
 }
@@ -514,8 +884,6 @@ int main(int argc, char *argv[]){
 			}
 			if(strcmp(line, "") != 0 && strcmp(line, "<<>>") != 0){
 				add_node(tree, line, fileContents);
-				test_path = line;
-				// test_sd_path 
 			}
 		}
 		fclose (file);
@@ -523,7 +891,18 @@ int main(int argc, char *argv[]){
 		perror (filename); 
 	}
 		print_tree(tree);
+		printf("PRINT TREE2: \n");
+		printf("END PRINT TREE2\n");
 		deparse(tree);
+		
+		//set_paths("/dir1/dir2/dir3/");
+		// parent_path = malloc(sizeof(char) * 500);
+		// child_path = malloc(sizeof(char) * 500);
 
+		// parent_path = "/dir1";
+		// child_path = "/dir2";
+		// printf("parent path: %s\n", parent_path);
+		// printf("child path: %s\n", child_path);
+	
     return fuse_main(argc, argv, &hello_oper, NULL);
 }
