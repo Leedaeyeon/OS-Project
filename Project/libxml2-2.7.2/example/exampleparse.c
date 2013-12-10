@@ -13,7 +13,7 @@ parseStory (xmlDocPtr doc, xmlNodePtr cur, xmlChar **path) {
 	xmlChar *contents;
 
 	FILE *file = NULL;
-	file = fopen("/root/Desktop/fuse-2.6.3/example/path.txt", "a");
+	file = fopen("/root/Desktop/Project/fuse-2.6.3/example/path.txt", "a");
 
 	//if it is a file or an empty directory handle ending differently
 	if(((cur->xmlChildrenNode->next)==NULL)){
@@ -39,7 +39,7 @@ parseStory (xmlDocPtr doc, xmlNodePtr cur, xmlChar **path) {
 	/* check and see if there is a child. if not get file, if so continue normally*/
 
 	if(((cur->xmlChildrenNode->next)==NULL)){		
-		fopen("/root/Desktop/fuse-2.6.3/example/path.txt", "a");		
+		fopen("/root/Desktop/Project/fuse-2.6.3/example/path.txt", "a");		
 		contents = xmlNodeListGetString(doc, cur->xmlChildrenNode,1);
 		if((xmlStrcmp(contents, " "))){	
 		fprintf(file, "%s\n<<>>\n", contents);	

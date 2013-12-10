@@ -378,10 +378,10 @@ void remove_node(TREE* tree, char* path){
  }
 }
 
-void deparse(TREE* tree){
-	FILE *file = fopen("parsedexample.xml", "w");
+void deparse(TREE* tree){	
+	FILE *file = fopen("/root/Desktop/Project/fuse-2.6.3/example/parsedexample.xml", "w");
 	fclose(file);
-	fopen("parsedexample.xml", "a");
+	fopen("/root/Desktop/Project/fuse-2.6.3/example/parsedexample.xml", "a");
 	deparse_recursive(tree, tree->root, file);
 	fclose(file);
 }
@@ -397,15 +397,25 @@ static int hello_mkdir(const char *path, struct stat *stbuf){
 	if (res == -1){
 		//File exists
 		//printf("mkdir file exists\n");
-        	return -errno;
+		tmp_path[0] = '\0';
+		//strcpy(tmp_path, "/");
+		strcat(tmp_path, path);
+		printf("mkdir path: %s\n", tmp_path);	
+		add_node(tree, tmp_path, "");
+		deparse(tree);
+		printf("added node\n");
+        	//return -errno;
 	}
 	if(res ==0){
-	/* if file does not exist call add node here to add to the node with path as arg*/		
+	/* if file does not exist call add node here to add to the node with path as arg*/				
 		strcpy(tmp_path, "/");
 		strcat(tmp_path, path);
 		printf("mkdir path: %s\n", tmp_path);	
 		add_node(tree, tmp_path, "");
+		deparse(tree);
+		printf("added node\n");
 	}
+	
 
     return 0;
 }
@@ -425,7 +435,9 @@ static int hello_rmdir(const char *path){
 	    if(res == 0){
 		strcpy(rm_tmp_path, path);
 		strcat(rm_tmp_path, "/");
-		remove_node(tree, rm_tmp_path);		
+		remove_node(tree, rm_tmp_path);			
+		deparse(tree);	
+		printf("removed node\n");
 		}
 
 	    return 0;
@@ -673,7 +685,8 @@ int main(int argc, char *argv[]){
 		print_tree(tree);
 		printf("PRINT TREE2: \n");
 		printf("END PRINT TREE2\n");
-		deparse(tree);
-	
+		//deparse(tree);
+
     return fuse_main(argc, argv, &hello_oper, NULL);
+
 }

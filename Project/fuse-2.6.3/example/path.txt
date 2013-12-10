@@ -48,3 +48,109 @@ This is another test file
 hello world
 <<>>
 /dir4/
+/dir1/
+/dir1/sd1/
+/dir1/sd1/testfile1:
+Joe
+<<>>
+/dir1/testfile2:
+June
+<<>>
+/dir1/testfile3:
+hi
+<<>>
+/dir2/
+/dir2/subdir/
+/dir2/subdir/testfile5:
+CentOS is developed by a small but growing team of core developers.  In turn the core developers are supported by an active user community including system administrators, network administrators, enterprise users, managers, core Linux contributors and Linux enthusiasts from around the world.
+<<>>
+/dir2/subdir/sd8/
+/dir2/subdir/sd8/testfile9:
+ Test file for OS project
+<<>>
+/dir2/testfile6:
+This is another test file 
+<<>>
+/dir3/
+/dir3/subdir7/
+/dir3/subdir7/subdir8/
+/dir3/subdir7/subdir8/testfile8:
+hello world
+<<>>
+/dir4/
+/dir4/sd/
+/dir1/
+/dir1/testfile1:
+Joe
+<<>>
+/dir1/testfile2:
+June
+<<>>
+/dir1/testfile3:
+hi
+<<>>
+/dir2/
+/dir2/subdir/
+/dir2/subdir/testfile5:
+CentOS is developed by a small but growing team of core developers.  In turn the core developers are supported by an active user community including system administrators, network administrators, enterprise users, managers, core Linux contributors and Linux enthusiasts from around the world.
+<<>>
+/dir2/testfile6:
+This is another test file 
+<<>>
+/dir3/
+/dir3/subdir7/
+/dir3/subdir7/subdir8/
+/dir3/subdir7/subdir8/testfile8:
+hello world
+<<>>
+/dir4/
+/dir1/
+/dir1/testfile1:
+Joe
+<<>>
+/dir1/testfile2:
+June
+<<>>
+/dir1/testfile3:
+hi
+<<>>
+/dir2/
+/dir2/subdir/
+/dir2/subdir/testfile5:
+CentOS is developed by a small but growing team of core developers.  In turn the core developers are supported by an active user community including system administrators, network administrators, enterprise users, managers, core Linux contributors and Linux enthusiasts from around the world.
+<<>>
+/dir2/testfile6:
+This is another test file 
+<<>>
+/dir3/
+/dir3/subdir7/
+/dir3/subdir7/subdir8/
+/dir3/subdir7/subdir8/testfile8:
+hello world
+<<>>
+/dir4/
+/dir1/
+/dir1/testfile1:
+Joe
+<<>>
+/dir1/testfile2:
+June
+<<>>
+/dir1/testfile3:
+hi
+<<>>
+/dir2/
+/dir2/subdir/
+/dir2/subdir/testfile5:
+CentOS is developed by a small but growing team of core developers.  In turn the core developers are supported by an active user community including system administrators, network administrators, enterprise users, managers, core Linux contributors and Linux enthusiasts from around the world.
+<<>>
+/dir2/testfile6:
+This is another test file 
+<<>>
+/dir3/
+/dir3/subdir7/
+/dir3/subdir7/subdir8/
+/dir3/subdir7/subdir8/testfile8:
+hello world
+<<>>
+/dir4/
